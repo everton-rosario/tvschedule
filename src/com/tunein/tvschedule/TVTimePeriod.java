@@ -20,7 +20,35 @@ public class TVTimePeriod extends TimePeriod {
         this.weekDay = weekDay;
         this.startTime = startTime;
         this.duration = duration;
-        
     }
+
+
     
+    
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("TVTimePeriod [");
+        if (shortName != null) {
+            builder.append("shortName=");
+            builder.append(shortName);
+            builder.append(", ");
+        }
+        if (weekDay != null) {
+            builder.append("weekDay=");
+            builder.append(weekDay);
+            builder.append(", ");
+        }
+        if (startTime != null) {
+            builder.append("startTime=");
+            builder.append(startTime);
+            builder.append(", ");
+        }
+        if (duration != null) {
+            builder.append("duration=");
+            builder.append(duration);
+        }
+        builder.append("]");
+        return builder.toString();
+    }
 }

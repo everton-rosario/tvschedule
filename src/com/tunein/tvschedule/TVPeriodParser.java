@@ -3,17 +3,41 @@
  */
 package com.tunein.tvschedule;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.DateFormatSymbols;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * @author Everton Rosario (erosario@gmail.com)
  */
 public class TVPeriodParser {
 
+    /*
+     * Matchers for hour and duration - Intended for parsing more data 
+     */
+    private static Pattern DURATION_PATTERN_DEFAULT = Pattern.compile("\\d+hr");
+    private static Pattern DURATION_PATTERN_EXTRA_MIN = Pattern.compile("\\d+:\\d*hr");
+    private static Pattern HOUR24_PATTERN = Pattern.compile("\\d+:\\d+");
+    private static Pattern HOUR24_PATTERN_NOMINUTE = Pattern.compile("\\d+:\\d+");
+    private static Pattern HOUR_AMPM_PATTERN = Pattern.compile("\\d+:\\d+(am|pm)");
+    private static Pattern HOUR_AMPM_PATTERN_NOMINUTE = Pattern.compile("\\d+(am|pm)");
+
+    
+    /*
+     * Maps the days of week: Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday
+     * or the short form: Sun, Mon, Tue, Wed, Thu, Fri, Sat
+     */
     private static Map<String, Integer> WEEK_DAYS_LONG = new HashMap<String, Integer>();
     private static Map<String, Integer> WEEK_DAYS_SHORT = new HashMap<String, Integer>();
     
@@ -31,30 +55,52 @@ public class TVPeriodParser {
     }
 
     
-    private static Pattern DURATION_PATTERN_DEFAULT = Pattern.compile("\\d+hr");
-    private static Pattern DURATION_PATTERN_EXTRA_MIN = Pattern.compile("\\d+:\\d*hr");
-    private static Pattern HOUR24_PATTERN = Pattern.compile("\\d+:\\d+");
-    private static Pattern HOUR24_PATTERN_NOMINUTE = Pattern.compile("\\d+:\\d+");
-    private static Pattern HOUR_AMPM_PATTERN = Pattern.compile("\\d+:\\d+(am|pm)");
-    private static Pattern HOUR_AMPM_PATTERN_NOMINUTE = Pattern.compile("\\d+(am|pm)");
 
 
+    
+    /**
+     * @param is
+     * @return
+     * @throws IOException 
+     */
+    public static TreeSet<TVTimePeriod> parsePeriods(InputStream is) throws IOException {
+        
+        TreeSet<TVTimePeriod> periods = new TreeSet<TVTimePeriod>();
+        
+        
+        List<String> periodLines = new ArrayList<String>(4);
+        @SuppressWarnings("unchecked")
+        List<String> lines = IOUtils.readLines(is);
+
+        for (String line : lines) {
+
+            if (StringUtils.isNotEmpty(line)) {
+                periodLines.add(line);
+            }
+            
+            // Process the Group of lines that makes the period
+            if (periodLines.size() == 4) {
+                periods.add(parsePeriod(periodLines));
+                periodLines = new ArrayList<String>(4);
+            }
+        }
+        
+        return periods;
+    }
+    
+
+    
     
     /**
      * @param lines The 4 lines for parsing the TVTimePeriod
      * @return The parsed object
      */
-    public static TVTimePeriod parsePeriod(String... lines) {
-        if (lines.length != 4) {
-            throw new IllegalArgumentException("At least 4 lines must be informed for TVPeriodParser.parsePeriod(String... lines).");
+    public static TVTimePeriod parsePeriod(List<String> lines) {
+        if (lines.size() != 4) {
+            throw new IllegalArgumentException("Unfinished period in the end of input."); // At least 4 lines must be informed for TVPeriodParser.parsePeriod(String... lines).
         }
 
-        String shortName = lines[0];
-        String weekDay = lines[1];
-        String startTime = lines[2];
-        String duration = lines[3];
-
-        return new TVTimePeriod(shortName, weekDay, startTime, duration);
+        return new TVTimePeriod(lines.get(0), lines.get(1), lines.get(2), lines.get(3));
     }
 
     
@@ -184,8 +230,9 @@ public class TVPeriodParser {
      * Simple testing
      * @param args
      */
-    public static void main(String[] args) {
-        TVPeriodParser.parsePeriod(new String[] {"Car Racing", "Tuesday", "6pm", "1h"});
+    public static void main(String[] args) throws IOException {
+        TVTimePeriod period = TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Tuesday", "6pm", "1hr"}));
+        System.out.println(period);
         System.out.println(TVPeriodParser.getDayOfWeek("Sat"));
         System.out.println(TVPeriodParser.getDuration("10hr"));
         System.out.println(TVPeriodParser.getDuration("11:30hr"));
@@ -197,6 +244,12 @@ public class TVPeriodParser {
         System.out.println(TVPeriodParser.getTime("Tuesday", "9:30"));
         System.out.println(TVPeriodParser.getTime("Sunday", "10pm"));
         System.out.println(TVPeriodParser.getTime("Tuesday", "9am"));
+        
+        
+        TreeSet<TVTimePeriod> periods = TVPeriodParser.parsePeriods(TVPeriodParser.class.getResourceAsStream("/example-periods.txt"));
+        for (TVTimePeriod p : periods) {
+            System.out.println(p);
+        }
     }
     
 }
