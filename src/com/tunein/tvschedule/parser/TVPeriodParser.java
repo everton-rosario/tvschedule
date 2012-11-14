@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.tunein.tvschedule;
+package com.tunein.tvschedule.parser;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,6 +17,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+
+import com.tunein.tvschedule.TVTimePeriod;
 
 /**
  * @author Everton Rosario (erosario@gmail.com)
@@ -246,7 +248,7 @@ public class TVPeriodParser {
         System.out.println(TVPeriodParser.getTime("Tuesday", "9am"));
         
         
-        TreeSet<TVTimePeriod> periods = TVPeriodParser.parsePeriods(TVPeriodParser.class.getResourceAsStream("/example-periods.txt"));
+        TreeSet<TVTimePeriod> periods = TVPeriodParser.parsePeriods(TVPeriodParser.class.getResourceAsStream("/unordered-periods.txt"));
         for (TVTimePeriod p : periods) {
             System.out.println(p);
         }

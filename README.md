@@ -34,6 +34,8 @@ Monday
 7pm
 2hr
 
-Would be compacted to Car Racing, M, 6pm, 3hr (consolidating the contiguous times).  Always prefer the greatest consolidation option available.
+Would be compacted to Car Racing, M, 6pm, 3hr (consolidating the contiguous times).  
+
+Always prefer the greatest consolidation option available.
 
 Bonus if your application detects collisions - when different shows are defined over the same times and days.
