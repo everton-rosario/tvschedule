@@ -164,7 +164,7 @@ public class TVPeriodParser {
      * @param startTime String format
      * @return Milliseconds formated hour and minute
      */
-    private static long getDaytime(String startTime) {
+    public static long getDaytime(String startTime) {
         long hour = 0L;
         long min = 0L;
 
@@ -253,5 +253,5 @@ public class TVPeriodParser {
             System.out.println(p);
         }
     }
-    
+
 }

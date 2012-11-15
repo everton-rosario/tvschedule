@@ -9,10 +9,11 @@ import com.tunein.tvschedule.parser.TVPeriodParser;
 /**
  * @author Everton Rosario (erosario@gmail.com)
  */
-public class TVTimePeriod implements Comparable<TVTimePeriod> {
+public class TVTimePeriod implements Comparable<TVTimePeriod>, Cloneable {
 
     // Calculated fields
     private long start;
+    private long startDaytime;
     private long duration;
 
     // Informed fields
@@ -21,15 +22,119 @@ public class TVTimePeriod implements Comparable<TVTimePeriod> {
     private String startTime;
     private String durationTime;
 
+    /**
+     * Only constructor, strict encapsulation
+     * @param shortName
+     * @param weekDay
+     * @param startTime
+     * @param duration
+     */
     public TVTimePeriod(String shortName, String weekDay, String startTime, String duration) {
         this.shortName = shortName;
         this.weekDay = weekDay;
         this.startTime = startTime;
         this.durationTime = duration;
         this.start = TVPeriodParser.getTime(weekDay, startTime);
+        this.startDaytime = TVPeriodParser.getDaytime(startTime); // normalizes 6pm to miliseconds in a day to achieve this amount 
         this.duration = TVPeriodParser.getDuration(duration);
     }
 
+    
+    public boolean isContiguous(TVTimePeriod other) {
+        if (other == null) {
+            return false;
+        }
+        
+        return this.start + this.duration == other.start || this.start == other.start + other.duration;
+    }
+
+    public boolean isGroupable(TVTimePeriod other) {
+        return isContiguous(other) && isGroupableWeekday(other);
+    }
+
+    public boolean isGroupableWeekday(TVTimePeriod other) {
+        return this.shortName.equals(other.shortName) &&
+                this.duration == other.duration &&
+                this.startDaytime == other.startDaytime;
+    }
+    
+    
+    /**
+     * Has conflict periords:
+     *   ======
+     * ----------  (invalid because of ordering periods by time)
+     *     
+     * ========
+     *   ----
+     *     
+     * ====
+     *   -----
+     *     
+     *    ====     (invalid because of ordering periods by time)
+     * -----
+     * 
+     * 
+     * Has NO conflict periods:
+     * ====
+     *     ----
+     * 
+     *     ====    (invalid because of ordering periods by time)
+     * ----
+     * 
+     * ====  
+     *       -----
+     *       
+     *       ===== (invalid because of ordering periods by time)
+     * -----
+     *  
+     * @param other
+     * @return
+     */
+    public boolean hasConflict(TVTimePeriod other) {
+        
+        int comparison = this.compareTo(other);
+        
+        TVTimePeriod first = comparison == 1 ? other : this;
+        TVTimePeriod second = comparison == 1 ? this : other;
+        
+        
+        
+        return this.start >= other.start;
+    }
+
+    /**
+     * Ordered by finishing time, works better for greedy algorithm
+     */
+    @Override
+    public int compareTo(TVTimePeriod obj) {
+        if (start + duration < obj.start + obj.duration)
+            return -1;
+        if (start + duration > obj.start + obj.duration)
+            return 1;
+        return 0;
+    }
+
+    
+    public String getGroupingKey() {
+        StringBuffer sbuff = new StringBuffer();
+        sbuff.append(this.shortName).append("-").append(this.startTime).append("-").append(this.durationTime);
+        return sbuff.toString();
+    }
+
+
+    public String getGroupingKeyDaily() {
+        StringBuffer sbuff = new StringBuffer();
+        sbuff.append(this.shortName).append("-").append(this.weekDay).append("-").append(this.durationTime);
+        return sbuff.toString();
+    }
+    
+
+    
+    
+    /* -----------
+     * Getters
+     * ----
+     */
     
     public long getStart() {
         return start;
@@ -58,36 +163,17 @@ public class TVTimePeriod implements Comparable<TVTimePeriod> {
     public String getDurationTime() {
         return durationTime;
     }
+
     
-    public boolean isContiguous(TVTimePeriod other) {
-        if (other == null) {
-            return false;
-        }
-        
-        return this.start + this.duration == other.start || this.start == other.start + other.duration;
-    }
-
-
-    /**
-     * Ordered by finishing time, works better for greedy algorithm
+    
+    
+    /* ----------------------
+     * 
+     * Overriding methods for utilities (hashCode, equals, toString, clone)
+     * 
+     * ---- 
      */
-    @Override
-    public int compareTo(TVTimePeriod obj) {
-        if (start + duration < obj.start + obj.duration)
-            return -1;
-        if (start + duration > obj.start + obj.duration)
-            return 1;
-        return 0;
-    }
-
     
-    public String getGroupingKey() {
-        StringBuffer sbuff = new StringBuffer();
-        sbuff.append(this.shortName).append("-").append(this.startTime).append("-").append(this.durationTime);
-        return sbuff.toString();
-    }
-
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -173,6 +259,10 @@ public class TVTimePeriod implements Comparable<TVTimePeriod> {
         return builder.toString();
     }
     
-    
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        TVTimePeriod cloned = new TVTimePeriod(shortName, weekDay, startTime, durationTime);
+        return cloned;
+    }
 
 }

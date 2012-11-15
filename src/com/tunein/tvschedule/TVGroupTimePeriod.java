@@ -7,6 +7,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.TreeSet;
 
+import com.tunein.tvschedule.parser.TVPeriodParser;
+
 /**
  * @author Everton Rosario (erosario@gmail.com)
  *
@@ -38,6 +40,11 @@ public class TVGroupTimePeriod {
     public void addPeriod(TVTimePeriod periodToAdd) {
         periods.add(periodToAdd);
         this.weekDay += "/" + periodToAdd.getWeekDay().charAt(0);
+    }
+
+    public void addPeriodContiguous(TVTimePeriod periodToAdd) {
+        periods.add(periodToAdd);
+        this.durationTime = ((TVPeriodParser.getDuration(this.durationTime) + TVPeriodParser.getDuration(periodToAdd.getDurationTime())) / (3600 * 1000)) + "hr";
     }
 
     public String getStringRepresentation() {

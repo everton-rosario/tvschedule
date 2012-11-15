@@ -67,6 +67,15 @@ public class TVSchedule {
             } else {
                 group.addPeriod(period);
             }
+
+            TVGroupTimePeriod groupDaily = groupContiguous.get(period.getGroupingKey());
+            if (groupDaily == null) {
+                groupDaily = new TVGroupTimePeriod(period);
+                groupByNameStartDuration.put(period.getGroupingKeyDaily(), groupDaily);
+            } else {
+                groupDaily.addPeriodContiguous(period);
+            }
+            
         }
         
         
