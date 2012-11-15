@@ -15,6 +15,7 @@ public class TVTimePeriod implements Comparable<TVTimePeriod>, Cloneable {
     private long start;
     private long startDaytime;
     private long duration;
+    private long end;
 
     // Informed fields
     private String shortName;
@@ -37,11 +38,12 @@ public class TVTimePeriod implements Comparable<TVTimePeriod>, Cloneable {
         this.start = TVPeriodParser.getTime(weekDay, startTime);
         this.startDaytime = TVPeriodParser.getDaytime(startTime); // normalizes 6pm to miliseconds in a day to achieve this amount 
         this.duration = TVPeriodParser.getDuration(duration);
+        this.end = this.start + this.duration;
     }
 
     
     public boolean isContiguous(TVTimePeriod other) {
-        if (other == null) {
+        if (other == null || !shortName.equals(other.shortName)) {
             return false;
         }
         
@@ -49,7 +51,7 @@ public class TVTimePeriod implements Comparable<TVTimePeriod>, Cloneable {
     }
 
     public boolean isGroupable(TVTimePeriod other) {
-        return isContiguous(other) && isGroupableWeekday(other);
+        return isContiguous(other) || isGroupableWeekday(other);
     }
 
     public boolean isGroupableWeekday(TVTimePeriod other) {
@@ -60,46 +62,38 @@ public class TVTimePeriod implements Comparable<TVTimePeriod>, Cloneable {
     
     
     /**
-     * Has conflict periords:
-     *   ======
-     * ----------  (invalid because of ordering periods by time)
-     *     
+     * Has conflict periods:
+     * 
      * ========
      *   ----
      *     
      * ====
      *   -----
      *     
-     *    ====     (invalid because of ordering periods by time)
-     * -----
-     * 
-     * 
      * Has NO conflict periods:
      * ====
      *     ----
      * 
-     *     ====    (invalid because of ordering periods by time)
-     * ----
-     * 
      * ====  
      *       -----
      *       
-     *       ===== (invalid because of ordering periods by time)
-     * -----
-     *  
      * @param other
      * @return
      */
     public boolean hasConflict(TVTimePeriod other) {
         
-        int comparison = this.compareTo(other);
+        TVTimePeriod first = start > other.start ? other : this;
+        TVTimePeriod second = start > other.start ? this : other;
         
-        TVTimePeriod first = comparison == 1 ? other : this;
-        TVTimePeriod second = comparison == 1 ? this : other;
-        
-        
-        
-        return this.start >= other.start;
+        return first.start <= second.start &&
+               first.start < second.end &&
+               first.end >= second.start  &&
+               first.end >= second.end; /* ||
+               
+               first.start <= second.start &&
+               first.start < second.end &&
+               first.end > second.start &&
+               first.end <= second.end; */
     }
 
     /**
