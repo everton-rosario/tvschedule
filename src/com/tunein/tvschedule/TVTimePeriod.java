@@ -3,6 +3,13 @@
  */
 package com.tunein.tvschedule;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.TreeSet;
+
+import org.apache.commons.lang.StringUtils;
+
 import com.tunein.tvschedule.parser.TVPeriodParser;
 
 
@@ -22,6 +29,10 @@ public class TVTimePeriod implements Comparable<TVTimePeriod>, Cloneable {
     private String weekDay;
     private String startTime;
     private String durationTime;
+    
+    // Grouped Periods
+    private TreeSet<String> daysOfWeek = new TreeSet<String>(new DaysOfWeekComparator());
+    private List<TVTimePeriod> group = new ArrayList<TVTimePeriod>();
 
     /**
      * Only constructor, strict encapsulation
@@ -33,6 +44,7 @@ public class TVTimePeriod implements Comparable<TVTimePeriod>, Cloneable {
     public TVTimePeriod(String shortName, String weekDay, String startTime, String duration) {
         this.shortName = shortName;
         this.weekDay = weekDay;
+        this.daysOfWeek.add(weekDay);
         this.startTime = startTime;
         this.durationTime = duration;
         this.start = TVPeriodParser.getTime(weekDay, startTime);
@@ -40,10 +52,67 @@ public class TVTimePeriod implements Comparable<TVTimePeriod>, Cloneable {
         this.duration = TVPeriodParser.getDuration(duration);
         this.end = this.start + this.duration;
     }
-
     
+    
+    
+    /**
+     * @param other
+     * @return
+     */
+    public TVTimePeriod group(TVTimePeriod other) {
+        
+        TVTimePeriod grouped = this;
+        
+        if (isGroupable(other)) {
+            grouped = (TVTimePeriod) this.clone();
+            
+            if (isContiguous(other)) {
+                grouped.duration += other.duration;
+                grouped.durationTime = grouped.duration / (3600 * 1000) + "hr";
+
+            } else if (isGroupableWeekday(other)) {
+                grouped.daysOfWeek.addAll(other.daysOfWeek);
+
+            }
+
+            if (isGroup()) {
+                grouped.group.addAll(group);
+            } else {
+                grouped.group.add(this);
+            }
+            grouped.group.add(other);
+        }
+
+        return grouped;
+    }
+
+
+    public String getStringRepresentation() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(shortName);
+        builder.append(", ");
+        builder.append(StringUtils.join(daysOfWeek, "/"));
+        builder.append(", ");
+        builder.append(startTime);
+        builder.append(", ");
+        builder.append(durationTime);
+        return builder.toString();
+    }
+    
+    
+    private boolean isGroup() {
+        return group.size() > 0;
+    }
+
+
+
     public boolean isContiguous(TVTimePeriod other) {
-        if (other == null || !shortName.equals(other.shortName)) {
+        
+        // Excluded conditions: Same day of week and same program name 
+        if (other == null || 
+            !shortName.equals(other.shortName) ||
+            !this.weekDay.equals(other.weekDay)) {
+            
             return false;
         }
         
@@ -82,22 +151,39 @@ public class TVTimePeriod implements Comparable<TVTimePeriod>, Cloneable {
      */
     public boolean hasConflict(TVTimePeriod other) {
         
+        boolean hasConflict = false;
+        
+        if (other == null) {
+            return false;
+        }
+
+        
+        // Recursion for checking grouped periods
+        if (isGroup()) {
+            for (TVTimePeriod period : group) {
+                hasConflict = period.hasConflict(other);
+                if (hasConflict) return true;
+            }
+        } else {
+            if (other.isGroup()) {
+                for (TVTimePeriod period : other.group) {
+                    hasConflict = period.hasConflict(this);
+                    if (hasConflict) return true;
+                }
+            }
+        }
+        
         TVTimePeriod first = start > other.start ? other : this;
         TVTimePeriod second = start > other.start ? this : other;
         
         return first.start <= second.start &&
                first.start < second.end &&
                first.end >= second.start  &&
-               first.end >= second.end; /* ||
-               
-               first.start <= second.start &&
-               first.start < second.end &&
-               first.end > second.start &&
-               first.end <= second.end; */
+               first.end >= second.end;
     }
 
     /**
-     * Ordered by finishing time, works better for greedy algorithm
+     * Ordered by starting time, works better for greedy algorithm
      */
     @Override
     public int compareTo(TVTimePeriod obj) {
@@ -254,9 +340,38 @@ public class TVTimePeriod implements Comparable<TVTimePeriod>, Cloneable {
     }
     
     @Override
-    protected Object clone() throws CloneNotSupportedException {
+    protected Object clone() {
+        
         TVTimePeriod cloned = new TVTimePeriod(shortName, weekDay, startTime, durationTime);
+
+        if (!group.isEmpty()) {
+            
+            TreeSet<String> clonedDaysOfWeek = new TreeSet<String>();
+            cloned.daysOfWeek.clear();
+
+            for (TVTimePeriod period : group) {
+                cloned.group.add((TVTimePeriod) period.clone());
+                clonedDaysOfWeek.addAll(period.daysOfWeek);
+            }
+            
+            cloned.daysOfWeek.addAll(clonedDaysOfWeek);
+        }
         return cloned;
+    }
+
+
+
+    public int size() {
+        return group.size();
+    }
+
+}
+
+class DaysOfWeekComparator implements Comparator<String> {
+
+    @Override
+    public int compare(String day1, String day2) {
+        return TVPeriodParser.getDayOfWeek(day1).compareTo(TVPeriodParser.getDayOfWeek(day2));
     }
 
 }

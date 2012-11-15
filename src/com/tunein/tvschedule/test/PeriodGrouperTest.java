@@ -29,7 +29,7 @@ public class PeriodGrouperTest {
         String expected = "Car Racing, S/M/T/W/T/F/S, 6pm, 1hr";
         
         
-        List<TVGroupTimePeriod> group = TVSchedule.optmize(periods);
+        List<TVTimePeriod> group = TVSchedule.optmize(periods);
         
         
         Assert.assertEquals("expected grouping all day in one occurrence.", expected, group.get(0).getStringRepresentation());
@@ -56,7 +56,7 @@ public class PeriodGrouperTest {
                           "Car Racing, W, 8pm, 2h";
         
         
-        List<TVGroupTimePeriod> group = TVSchedule.optmize(periods);
+        List<TVTimePeriod> group = TVSchedule.optmize(periods);
         
         
         Assert.assertEquals("expected grouping all day in one occurrence.", expected, group.get(0).getStringRepresentation());
@@ -77,7 +77,7 @@ public class PeriodGrouperTest {
         String expected = "Car Racing, M, 12am, 7hr";
         
         
-        List<TVGroupTimePeriod> group = TVSchedule.optmize(periods);
+        List<TVTimePeriod> group = TVSchedule.optmize(periods);
         
         
         Assert.assertEquals("expected grouping all day in one occurrence.", expected, group.get(0).getStringRepresentation());
@@ -96,7 +96,7 @@ public class PeriodGrouperTest {
         String expected = "Car Racing, M, 12am, 7hr";
         
         
-        List<TVGroupTimePeriod> group = TVSchedule.optmize(periods);
+        List<TVTimePeriod> group = TVSchedule.optmize(periods);
         
         
         Assert.assertEquals("expected grouping all day in one occurrence.", expected, group.get(0).getStringRepresentation());
@@ -126,8 +126,8 @@ public class PeriodGrouperTest {
         
         String result = "";
         
-        List<TVGroupTimePeriod> group = TVSchedule.optmize(periods);
-        for (TVGroupTimePeriod grouppedPeriod : group) {
+        List<TVTimePeriod> group = TVSchedule.optmize(periods);
+        for (TVTimePeriod grouppedPeriod : group) {
             if (StringUtils.isNotBlank(result)) {
                 result += "\n";
             }
@@ -160,8 +160,8 @@ public class PeriodGrouperTest {
         
         String result = "";
         
-        List<TVGroupTimePeriod> group = TVSchedule.optmize(periods);
-        for (TVGroupTimePeriod grouppedPeriod : group) {
+        List<TVTimePeriod> group = TVSchedule.optmize(periods);
+        for (TVTimePeriod grouppedPeriod : group) {
             if (StringUtils.isNotBlank(result)) {
                 result += "\n";
             }
@@ -203,8 +203,8 @@ public class PeriodGrouperTest {
         
         String result = "";
         
-        List<TVGroupTimePeriod> group = TVSchedule.optmize(periods);
-        for (TVGroupTimePeriod grouppedPeriod : group) {
+        List<TVTimePeriod> group = TVSchedule.optmize(periods);
+        for (TVTimePeriod grouppedPeriod : group) {
             if (StringUtils.isNotBlank(result)) {
                 result += "\n";
             }

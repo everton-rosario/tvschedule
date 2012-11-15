@@ -40,10 +40,10 @@ public class OptmizerServlet extends HttpServlet {
 		
 		// convert String into InputStream
 		TreeSet<TVTimePeriod> periods = TVPeriodParser.parsePeriods(new ByteArrayInputStream(content.getBytes()));
-		List<TVGroupTimePeriod> optmizeds = TVSchedule.optmize(new ArrayList<TVTimePeriod>(periods));
+		List<TVTimePeriod> optmizeds = TVSchedule.optmize(new ArrayList<TVTimePeriod>(periods));
 		
 		StringBuffer sbuf = new StringBuffer();
-		for (TVGroupTimePeriod optmal : optmizeds) {
+		for (TVTimePeriod optmal : optmizeds) {
             sbuf.append(optmal.getStringRepresentation() +"\n");
         }
 		
