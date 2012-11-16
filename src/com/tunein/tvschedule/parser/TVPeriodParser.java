@@ -173,8 +173,10 @@ public class TVPeriodParser {
         if (HOUR_AMPM_PATTERN_NOMINUTE.matcher(startTime).matches()) {
             if (startTime.contains("am")) { 
                 hour = Long.parseLong(startTime.substring(0, startTime.indexOf("am")));
+                if (hour == 12L) hour = 0;
             } else {
                 hour = 12 + Long.parseLong(startTime.substring(0, startTime.indexOf("pm")));
+                if (hour == 24L) hour = 12;
             }
         }
 
@@ -183,9 +185,11 @@ public class TVPeriodParser {
         else if (HOUR_AMPM_PATTERN.matcher(startTime).matches()) {
             if (startTime.contains("am")) { 
                 hour = Long.parseLong(startTime.substring(0, startTime.indexOf(":")));
+                if (hour == 12L) hour = 0;
                 min = Long.parseLong(startTime.substring(startTime.indexOf(":") + 1, startTime.indexOf("am")));
             } else {
                 hour = 12 + Long.parseLong(startTime.substring(0, startTime.indexOf(":")));
+                if (hour == 24L) hour = 12;
                 min = Long.parseLong(startTime.substring(startTime.indexOf(":") + 1, startTime.indexOf("pm")));
             }
         }

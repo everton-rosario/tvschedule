@@ -13,22 +13,21 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.tunein.tvschedule.TVGroupTimePeriod;
 import com.tunein.tvschedule.TVSchedule;
 import com.tunein.tvschedule.TVTimePeriod;
 import com.tunein.tvschedule.parser.TVPeriodParser;
 
 /**
- * Servlet implementation class OptmizerServlet
+ * Servlet implementation class Optmize
  */
 @WebServlet("/optmize")
-public class OptmizerServlet extends HttpServlet {
+public class Optmize extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
     /**
      * Default constructor. 
      */
-    public OptmizerServlet() {
+    public Optmize() {
     }
 
 
@@ -38,16 +37,15 @@ public class OptmizerServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String content = request.getParameter("content");
 		
-		// convert String into InputStream
+		// Parse the input periods
 		TreeSet<TVTimePeriod> periods = TVPeriodParser.parsePeriods(new ByteArrayInputStream(content.getBytes()));
-		List<TVTimePeriod> optmizeds = TVSchedule.optmize(new ArrayList<TVTimePeriod>(periods));
 		
-		StringBuffer sbuf = new StringBuffer();
-		for (TVTimePeriod optmal : optmizeds) {
-            sbuf.append(optmal.getStringRepresentation() +"\n");
-        }
+		// Optmize periods
+		List<TVTimePeriod> groups = TVSchedule.optmize(new ArrayList<TVTimePeriod>(periods));
 		
-		request.setAttribute("optmizeds", sbuf.toString());
+		
+		request.setAttribute("optmizeds", TVTimePeriod.format(groups));
+
 		RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/index.jsp");
 		dispatcher.forward(request, response);
 	}

@@ -100,6 +100,22 @@ public class TVTimePeriod implements Comparable<TVTimePeriod>, Cloneable {
     }
     
     
+    
+    public String getOriginalRepresentation() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(shortName);
+        builder.append("\n");
+        builder.append(weekDay);
+        builder.append("\n");
+        builder.append(startTime);
+        builder.append("\n");
+        builder.append(durationTime);
+        return builder.toString();
+
+        
+    }
+    
+    
     public boolean isGroup() {
         return group.size() > 0;
     }
@@ -378,6 +394,10 @@ public class TVTimePeriod implements Comparable<TVTimePeriod>, Cloneable {
         
         return result;
     }
+
+
+
+    
 
 }
 
