@@ -11,96 +11,116 @@
     <script>
     
     function formatItem(item) {
-        return item.shortName + ', ' + 
-               item.daysOfWeek.join('/') + ', ' +
-               item.startTime + ', ' +
-               item.durationTime;
+    	result = '';
+    	if (item.conflict1) {
+    		result = 'Conflict in period['+formatItem(item.conflict1)+'] with period['+formatItem(item.conflict2)+']';
+    	} else {
+    		result = item.shortName + ', ' + 
+                     item.daysOfWeek.join('/') + ', ' +
+                     item.startTime + ', ' +
+                     item.durationTime;
+    	}
+    	
+        return result;
                
     }
     
+    function buildResultItem(item) {
+    	$('#report').append( 
+    	    $('<div/>')
+	    	    .addClass(item.conflict1 ? 'ui-state-error resultItem' : item.group ? 'ui-state-highlight resultItem' : 'resultItem')
+	    	    .append(formatItem(item)));
+    }
+    
+    
+    /*
+     * This block executes like $(document).ready() callback
+    */
     $(function() {
         
-        // Setup for dialog requirements page
-        $("#dialogRequirement").dialog({
+        /* Setup for dialog requirements page */
+        $('#dialogRequirement').dialog({
             autoOpen: false,
             width: 800,
             height: 350,
             buttons: [
                 {
-                    text: "Ok",
+                    text: 'Ok',
                     click: function() {
-                        $(this).dialog("close");
+                        $(this).dialog('close');
                     }
                 }
             ]
         });
         
-     // Setup for dialog Empty page
-        $("#dialogEmptyField" ).dialog({
+     /* Setup for dialog Empty page */
+        $('#dialogEmptyField' ).dialog({
             autoOpen: false,
             width: 300,
             buttons: [
                 {
-                    text: "Ok",
+                    text: 'Ok',
                     click: function() {
-                        $(this).dialog("close");
+                        $(this).dialog('close');
                     }
                 }
             ]
         });
 
-        // Makes button setup and binds the click event
-        $("#btnRequirement").button({
+        /* Makes button setup and binds the click event */
+        $('#btnRequirement').button({
             icons: {
-                primary: "ui-icon-mail-closed"
+                primary: 'ui-icon-mail-closed'
             }
         });
-        $("#btnRequirement").click(function(event) {
-            $("#dialogRequirement").dialog("open");
+        $('#btnRequirement').click(function(event) {
+            $('#dialogRequirement').dialog('open');
             event.preventDefault();
         });
 
         
-        // Generate tv schedule button
-        $("#btnGenerate").button({
+        /* Generate tv schedule button */
+        $('#btnGenerate').button({
             icons: {
-                primary: "ui-icon-shuffle"
+                primary: 'ui-icon-shuffle'
             }
         });
-        $("#btnGenerate").click(function(event) {
+        $('#btnGenerate').click(function(event) {
             event.preventDefault();
             $.ajax({
                 url: 'generate',
                 success: function(data) {
-                    $("#content").val(data);
+                    $('#content').val(data);
                 }
             });
         });
         
-        // Makes button setup and binds the click event
-        $("#btnClear").button({
+        /* Makes button setup and binds the click event */
+        $('#btnClear').button({
             icons: {
-                primary: "ui-icon-trash"
+                primary: 'ui-icon-trash'
             }
         });
-        $("#btnClear").click(function(event) {
-            $("#content").empty();
+        $('#btnClear').click(function(event) {
+            $('#content').empty();
             event.preventDefault();
         });
 
-        // Process information and load result board
-        $("#btnOptmize").button({
+        /* Process information and load result board */
+        $('#btnOptmize').button({
             icons: {
-                primary: "ui-icon-gear"
+                primary: 'ui-icon-gear'
             }
         });
-        $("#btnOptmize").click(function(event) {
+        $('#btnOptmize').click(function(event) {
             event.preventDefault();
+            
+            $('#error').hide();
 
-            var content = $("#content").val();
+            var content = $('#content').val();
 
             if (!content) { 
-                $("#dialogEmptyField").dialog("open");
+                $('#dialogEmptyField').dialog('open');
             
             } else {
 
@@ -112,11 +132,30 @@
 	                    content : content
 	                },
 	                success: function(data) {
-	                    data.forEach(function(item, index) {
-	                        var line = formatItem(item);
-	                        console.log(item);
-	                        console.log(line);
-	                    });
+	                	if ('success' == data.status) {
+		                    data.result.forEach(function(item, index) {
+		                        var line = formatItem(item);
+		                        console.log(item);
+		                        console.log(line);
+		                        buildResultItem(item);
+		                        if (item.conflict1) {
+		                        	$('#errorTitle').html('Conflict found:');
+		                        	$('#errorMessage').html('Check conflicting time between TV Shows on informed schedule.');
+		                        	$('#error').show();
+		                        }
+		                    });
+	                	} else {
+	                		$('#errorTitle').html('Error:');
+                        	$('#errorMessage').html(data.message);
+                        	$('#error').show();
+	                	}
+	                },
+	                error: function(data) {
+                        if (item.conflict1) {
+                        	$('#errorTitle').html('Error processing your request:');
+                        	$('#errorMessage').html('Check if your internet connection is ok, or the server is running normally.');
+                        	$('#error').show();
+                        }
 	                }
 	            });
             }
@@ -179,12 +218,15 @@
 	<br/>
     <br/>
 	
-	<div style="width: 100%; height: 203px; border: solid 1px #AAA;">
-        <div>Car Racing, S/T, 10pm, 1hr</div>
-        <div>Car Racing, S/T, 10pm, 1hr</div>
-        <div>Car Racing, S/T, 10pm, 1hr</div>
-        <div>Car Racing, S/T, 10pm, 1hr</div>
-        <div>Car Racing, S/T, 10pm, 1hr</div>
+	<div id="error" class="ui-widget" style="display: none;">
+		<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
+			<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+			<strong id="errorTitle">Alert:</strong> <span id="errorMessage">Sample ui-state-error style.</span></p>
+		</div>
+	</div>
+		
+	
+	<div id="report" style="width: 100%; height: 203px; border: solid 1px #AAA;">
     </div>
 	
 	

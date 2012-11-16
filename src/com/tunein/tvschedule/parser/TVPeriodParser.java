@@ -73,17 +73,26 @@ public class TVPeriodParser {
         List<String> periodLines = new ArrayList<String>(4);
         @SuppressWarnings("unchecked")
         List<String> lines = IOUtils.readLines(is);
+        
+        int periodCount = 1;
 
         for (String line : lines) {
-
-            if (StringUtils.isNotEmpty(line)) {
-                periodLines.add(line);
-            }
             
-            // Process the Group of lines that makes the period
-            if (periodLines.size() == 4) {
-                periods.add(parsePeriod(periodLines));
-                periodLines = new ArrayList<String>(4);
+            try {
+
+                if (StringUtils.isNotEmpty(line)) {
+                    periodLines.add(line);
+                }
+                
+                // Process the Group of lines that makes the period
+                if (periodLines.size() == 4) {
+                    periods.add(parsePeriod(periodLines));
+                    periodLines = new ArrayList<String>(4);
+                    periodCount++;
+                }
+            
+            } catch (Exception ex) {
+                throw new RuntimeException(ex.getMessage()+ " - Check the ["+periodCount+"] period informed.");
             }
         }
         

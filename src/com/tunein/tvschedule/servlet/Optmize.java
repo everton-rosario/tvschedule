@@ -34,19 +34,37 @@ public class Optmize extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	    Map<String, Object> result = new HashMap<String,Object>();
+	    
 		String content = request.getParameter("content");
 		
 		// Parse the input periods
-		TreeSet<TVTimePeriod> periods = TVPeriodParser.parsePeriods(new ByteArrayInputStream(content.getBytes()));
+		TreeSet<TVTimePeriod> periods = null;
+		try {
+		    periods = TVPeriodParser.parsePeriods(new ByteArrayInputStream(content.getBytes()));
+        } catch (Exception e) {
+            result.put("status", "fail");
+            result.put("message", e.getMessage());
+        }
 		
-		// Optmize periods
-		List<TVTimePeriod> groups = TVSchedule.optmize(new ArrayList<TVTimePeriod>(periods));
+
+		if (periods != null) {
+    		// Optmize periods
+		    try {
+        		List<TVTimePeriod> groups = TVSchedule.optmize(new ArrayList<TVTimePeriod>(periods));
+        		result.put("status", "success");
+        		result.put("result", groups);
+		    } catch (Exception ex) {
+	            result.put("status", "fail");
+	            result.put("message", ex.getMessage());
+		    }
+		}
 		
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
 
         Gson gson = new Gson();
-		out.write(gson.toJson(groups));
+		out.write(gson.toJson(result));
 
 		out.flush();
 		out.close();
