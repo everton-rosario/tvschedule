@@ -16,7 +16,7 @@
     		result = 'Conflict in period['+formatItem(item.conflict1)+'] with period['+formatItem(item.conflict2)+']';
     	} else {
     		result = item.shortName + ', ' + 
-                     item.daysOfWeek.join('/') + ', ' +
+                     item.daysOfWeek.join('/').replace(/[a-z]/g, '') + ', ' +
                      item.startTime + ', ' +
                      item.durationTime;
     	}
@@ -25,11 +25,38 @@
                
     }
     
+    function formatOriginalItem(item) {
+    	result = '';
+    	if (item.conflict1) {
+    		result = '<strong>Conflict</strong><br/>' + 
+    		          formatOriginalItem(item.conflict1) + '<br/><br/>' + 
+    		          formatOriginalItem(item.conflict2);
+    	} else {
+    		if (item.group.length) {
+    			item.group.forEach(function(group, index) {
+    				result += formatOriginalItem(group) + '<br/><br/>';
+    			});
+    		} else {
+	    		result = item.shortName + '<br/>' + 
+	                     item.weekDay + '<br/>' +
+	                     item.startTime + '<br/>' +
+	                     item.durationTime;
+    		}
+    	}
+    	
+        return result;
+               
+    }
+    
     function buildResultItem(item) {
+    	console.log(item);
     	$('#report').append( 
     	    $('<div/>')
-	    	    .addClass(item.conflict1 ? 'ui-state-error resultItem' : item.group ? 'ui-state-highlight resultItem' : 'resultItem')
-	    	    .append(formatItem(item)));
+	    	    .addClass(item.conflict1 ? 'ui-state-error resultItem' : item.group.length ? 'ui-state-highlight resultItem' : 'resultItem')
+	    	    .css('border', 'none')
+	    	    .html(formatItem(item))
+	    	    .attr('title', formatOriginalItem(item))
+	    );
     }
     
     
@@ -38,6 +65,13 @@
     */
     $(function() {
         
+    	/* Setup for toltip */
+    	$(function() {
+    		$(document).tooltip({
+    			track: true
+    		});
+    	});
+    	
         /* Setup for dialog requirements page */
         $('#dialogRequirement').dialog({
             autoOpen: false,
@@ -116,6 +150,7 @@
             event.preventDefault();
             
             $('#error').hide();
+            $('#report').empty();
 
             var content = $('#content').val();
 
@@ -168,6 +203,7 @@
         font: 70% "Trebuchet MS", sans-serif;
         margin: 65px;
     }
+    
     </style>
 </head>
 

@@ -71,7 +71,7 @@ public class PeriodGrouperTest {
     @Test
     public void testT2_grouperContinuousSameday() {
         List<TVTimePeriod> periods = new ArrayList<TVTimePeriod>();
-        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "12am", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "12pm", "1hr"})));
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "1pm", "1hr"})));
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "2pm", "1hr"})));
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "3pm", "1hr"})));
@@ -80,7 +80,7 @@ public class PeriodGrouperTest {
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "6pm", "1hr"})));
         
         String[] expected = new String [] {
-                "Car Racing, Monday, 12am, 7hr"
+                "Car Racing, Monday, 12pm, 7hr"
         };
         
 
@@ -95,7 +95,7 @@ public class PeriodGrouperTest {
     @Test
     public void testT2b_grouperContinuousSameday() {
         List<TVTimePeriod> periods = new ArrayList<TVTimePeriod>();
-        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "12am", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "12pm", "1hr"})));
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "1pm", "1hr"})));
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "2pm", "1hr"})));
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "3pm", "2hr"})));
@@ -103,7 +103,7 @@ public class PeriodGrouperTest {
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "6pm", "1hr"})));
         
         String[] expected = new String [] {
-                "Car Racing, Monday, 12am, 7hr"
+                "Car Racing, Monday, 12pm, 7hr"
         };
         
         List<TVTimePeriod> groups = TVSchedule.optmize(periods);
@@ -123,7 +123,7 @@ public class PeriodGrouperTest {
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Friday", "6pm", "1hr"})));
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Saturday", "6pm", "1hr"})));
 
-        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "12am", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "12pm", "1hr"})));
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "1pm", "1hr"})));
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "2pm", "1hr"})));
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "3pm", "1hr"})));
@@ -134,7 +134,7 @@ public class PeriodGrouperTest {
         
         String[] expected = new String [] {
                 "Car Racing, Sunday/Tuesday/Wednesday/Thursday/Friday/Saturday, 6pm, 1hr",
-                "Car Racing, Monday, 12am, 8hr"
+                "Car Racing, Monday, 12pm, 8hr"
         };
 
         
@@ -223,14 +223,14 @@ public class PeriodGrouperTest {
     @Test
     public void testT5_grouperContinuousDifferentDays() {
         List<TVTimePeriod> periods = new ArrayList<TVTimePeriod>();
-        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "12am", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "12pm", "1hr"})));
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "1pm", "1hr"})));
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "2pm", "1hr"})));
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "3pm", "1hr"})));
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "4pm", "1hr"})));
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "5pm", "1hr"})));
         
-        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Friday", "12am", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Friday", "12pm", "1hr"})));
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Friday", "1pm", "1hr"})));
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Friday", "2pm", "1hr"})));
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Friday", "3pm", "1hr"})));
@@ -238,8 +238,8 @@ public class PeriodGrouperTest {
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Friday", "5pm", "1hr"})));
 
         String[] expected = new String [] {
-                "Car Racing, Monday, 12am, 6hr",
-                "Car Racing, Friday, 12am, 6hr"
+                "Car Racing, Monday, 12pm, 6hr",
+                "Car Racing, Friday, 12pm, 6hr",
         };
         
 
@@ -312,7 +312,7 @@ public class PeriodGrouperTest {
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"NFL Game", "Saturday", "6pm", "1hr"})));
         
         String[] expected = new String [] {
-                "Conflict with Period[Car Racing, Saturday, 6pm, 1hr] and Period[NFL Game, Saturday, 6pm, 1hr]",
+                "Conflict in Period[Car Racing, Saturday, 6pm, 1hr] with Period[NFL Game, Saturday, 6pm, 1hr]",
                 "Car Racing, Sunday/Monday/Tuesday/Wednesday/Thursday/Friday/Saturday, 6pm, 1hr",
                 "NFL Game, Saturday, 6pm, 1hr",
                

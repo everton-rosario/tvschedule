@@ -32,7 +32,7 @@ public class TVTimePeriod implements Comparable<TVTimePeriod>, Cloneable {
     
     // Grouped Periods
     private TreeSet<String> daysOfWeek = new TreeSet<String>(new DaysOfWeekComparator());
-    private List<TVTimePeriod> group = new ArrayList<TVTimePeriod>();
+    private TreeSet<TVTimePeriod> group = new TreeSet<TVTimePeriod>();
 
     /**
      * Only constructor, strict encapsulation
