@@ -24,13 +24,6 @@ import com.tunein.tvschedule.parser.TVPeriodParser;
 public class Optmize extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-    /**
-     * Default constructor. 
-     */
-    public Optmize() {
-    }
-
-
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
