@@ -121,6 +121,10 @@
         });
         $('#btnGenerate').click(function(event) {
             event.preventDefault();
+            $('#content').val('');
+            $('#error').hide();
+            $('#report').empty();
+
             $.ajax({
                 url: 'generate',
                 success: function(data) {
@@ -136,7 +140,9 @@
             }
         });
         $('#btnClear').click(function(event) {
-            $('#content').empty();
+            $('#content').val('');
+            $('#error').hide();
+            $('#report').empty();
             event.preventDefault();
         });
 
@@ -262,7 +268,7 @@
 	</div>
 		
 	
-	<div id="report" style="width: 100%; height: 203px; border: solid 1px #AAA;">
+	<div id="report" style="width: 100%; min-height: 203px; border: solid 1px #AAA;">
     </div>
 	
 	
