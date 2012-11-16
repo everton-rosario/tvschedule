@@ -2,8 +2,12 @@ package com.tunein.tvschedule.servlet;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 
 import javax.servlet.RequestDispatcher;
@@ -13,9 +17,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.gson.Gson;
 import com.tunein.tvschedule.TVSchedule;
 import com.tunein.tvschedule.TVTimePeriod;
 import com.tunein.tvschedule.parser.TVPeriodParser;
+import com.tunein.tvschedule.test.TVSchedulerGenerator;
 
 /**
  * Servlet implementation class Optmize
@@ -36,11 +42,14 @@ public class Optmize extends HttpServlet {
 		// Optmize periods
 		List<TVTimePeriod> groups = TVSchedule.optmize(new ArrayList<TVTimePeriod>(periods));
 		
-		
-		request.setAttribute("optmizeds", TVTimePeriod.format(groups));
+        response.setContentType("application/json");
+        PrintWriter out = response.getWriter();
 
-		RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/index.jsp");
-		dispatcher.forward(request, response);
+        Gson gson = new Gson();
+		out.write(gson.toJson(groups));
+
+		out.flush();
+		out.close();
 	}
 
 }

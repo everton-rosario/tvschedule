@@ -9,10 +9,19 @@
     <script src="js/jquery-1.8.2.js"></script>
     <script src="js/jquery-ui-1.9.1.custom.js"></script>
     <script>
+    
+    function formatItem(item) {
+        return item.shortName + ', ' + 
+               item.daysOfWeek.join('/') + ', ' +
+               item.startTime + ', ' +
+               item.durationTime;
+               
+    }
+    
     $(function() {
         
-        // Setup for dialog page
-        $( "#dialogRequirement" ).dialog({
+        // Setup for dialog requirements page
+        $("#dialogRequirement").dialog({
             autoOpen: false,
             width: 800,
             height: 350,
@@ -20,14 +29,32 @@
                 {
                     text: "Ok",
                     click: function() {
-                        $( this ).dialog( "close" );
+                        $(this).dialog("close");
+                    }
+                }
+            ]
+        });
+        
+     // Setup for dialog Empty page
+        $("#dialogEmptyField" ).dialog({
+            autoOpen: false,
+            width: 300,
+            buttons: [
+                {
+                    text: "Ok",
+                    click: function() {
+                        $(this).dialog("close");
                     }
                 }
             ]
         });
 
         // Makes button setup and binds the click event
-        $("#btnRequirement").button();
+        $("#btnRequirement").button({
+            icons: {
+                primary: "ui-icon-mail-closed"
+            }
+        });
         $("#btnRequirement").click(function(event) {
             $("#dialogRequirement").dialog("open");
             event.preventDefault();
@@ -35,40 +62,72 @@
 
         
         // Generate tv schedule button
-        $("#btnGenerate").button();
+        $("#btnGenerate").button({
+            icons: {
+                primary: "ui-icon-shuffle"
+            }
+        });
         $("#btnGenerate").click(function(event) {
             event.preventDefault();
             $.ajax({
                 url: 'generate',
                 success: function(data) {
-					$('#content').empty().html(data);
+                    $("#content").val(data);
                 }
             });
         });
         
-        
+        // Makes button setup and binds the click event
+        $("#btnClear").button({
+            icons: {
+                primary: "ui-icon-trash"
+            }
+        });
+        $("#btnClear").click(function(event) {
+            $("#content").empty();
+            event.preventDefault();
+        });
+
         // Process information and load result board
-        $("#btnOptmize").button();
+        $("#btnOptmize").button({
+            icons: {
+                primary: "ui-icon-gear"
+            }
+        });
         $("#btnOptmize").click(function(event) {
             event.preventDefault();
-            $.ajax({
-                type: 'POST',
-                url: 'optmize',
-                data: { 
-                    content : $('#content').html()
-                },
-                success: function(data) {
-                    $('#content').empty().html(data);
-                }
-            });
+
+            var content = $("#content").val();
+
+            if (!content) { 
+                $("#dialogEmptyField").dialog("open");
+            
+            } else {
+
+                $.ajax({
+	                
+                    type: 'POST',
+	                url: 'optmize',
+	                data: {
+	                    content : content
+	                },
+	                success: function(data) {
+	                    data.forEach(function(item, index) {
+	                        var line = formatItem(item);
+	                        console.log(item);
+	                        console.log(line);
+	                    });
+	                }
+	            });
+            }
         });
         
     });
     </script>
     <style>
     body{
-        font: 62.5% "Trebuchet MS", sans-serif;
-        margin: 50px;
+        font: 70% "Trebuchet MS", sans-serif;
+        margin: 65px;
     }
     </style>
 </head>
@@ -88,13 +147,13 @@
 	<!-- Button -->
 	<button id="btnGenerate" title="Generates a random fake week schedule">Generate</button>
 	
+    <!-- Button -->
+    <button id="btnClear" title="Clear current input field">Clear</button>
+
 	<br/>
 	
 	<div>
-		<textarea id="content" name="content" style="width: 686px; height: 203px;">
-		</textarea>
-		
-		<p style="display:inline; position:absolute;">
+		<p style="position: absolute;left: 7px; text-align: right;">
 			Example:<br/>
 			<br/>
 			Car Racing<br/>
@@ -107,15 +166,37 @@
             6pm<br/>
             1hr<br/>
 		</p>
+		
+		<textarea id="content" name="content" style="width: 100%; height: 203px; font: 100% 'Trebuchet MS', sans-serif;"></textarea>
 	</div>
+	
 	
 	<br/>
 	
 	<!-- Button -->
-    <button id="btnOptmize" title="Process the Schedule for grouping the entries">Process!</button>
+    <button id="btnOptmize" title="Process the Schedule entered, grouping the entries">Process!</button>
+
+	<br/>
+    <br/>
+	
+	<div style="width: 100%; height: 203px; border: solid 1px #AAA;">
+        <div>Car Racing, S/T, 10pm, 1hr</div>
+        <div>Car Racing, S/T, 10pm, 1hr</div>
+        <div>Car Racing, S/T, 10pm, 1hr</div>
+        <div>Car Racing, S/T, 10pm, 1hr</div>
+        <div>Car Racing, S/T, 10pm, 1hr</div>
+    </div>
 	
 	
-	
+    <!-- 
+          Dialog for Project Description 
+    -->
+    <div id="dialogEmptyField" title="Empty TV Schedule">
+        <p>
+            Please enter TV Schedule in the presenting input, for further processing.
+        </p> 
+    </div>
+
 	<!-- 
 	      Dialog for Project Description 
 	-->
