@@ -24,28 +24,29 @@ public class TVSchedule {
      * @param periods The periods in the week
      * @return A map for each TV Program and if any conflict happens, a key CONFLICTED_PERIODS is returned
      */
-    public static Map<String, List<TVTimePeriod>> analyseAndSplitTVPrograms(TreeSet<TVTimePeriod> orderedPeriods) {
+    public static Map<String, TreeSet<TVTimePeriod>> analyzeAndSplitTVPrograms(TreeSet<TVTimePeriod> orderedPeriods) {
         
-        Map<String, List<TVTimePeriod>> result = new HashMap<String, List<TVTimePeriod>>();
+        Map<String, TreeSet<TVTimePeriod>> result = new HashMap<String, TreeSet<TVTimePeriod>>();
         
         TVTimePeriod previous = null;
         for (TVTimePeriod period : orderedPeriods) {
             
             if(period.hasConflict(previous)) {
-                List<TVTimePeriod> conflicts = result.get(CONFLICTED_PERIODS);
+                TreeSet<TVTimePeriod> conflicts = result.get(CONFLICTED_PERIODS);
                 if (conflicts == null) {
-                    conflicts = new ArrayList<TVTimePeriod>(); 
+                    conflicts = new TreeSet<TVTimePeriod>(); 
                 }
-                conflicts.add(period);
-                conflicts.add(previous);
+                conflicts.add(new TVTimePeriodConflict(previous, period));
+                result.put(CONFLICTED_PERIODS, conflicts);
             }
             
-            List<TVTimePeriod> programEntries = result.get(period.getShortName());
+            TreeSet<TVTimePeriod> programEntries = result.get(period.getShortName());
             if (programEntries == null) {
-                programEntries = new ArrayList<TVTimePeriod>();
+                programEntries = new TreeSet<TVTimePeriod>();
             }
             programEntries.add(period);
             result.put(period.getShortName(), programEntries);
+            previous = period;
         }
         
         
@@ -57,18 +58,19 @@ public class TVSchedule {
     public static List<TVTimePeriod> optmize(List<TVTimePeriod> periods) {
         
         TreeSet<TVTimePeriod> orderedPeriods = new TreeSet<TVTimePeriod>(periods);
-        Map<String, List<TVTimePeriod>> tvPrograms = analyseAndSplitTVPrograms(orderedPeriods);
+
+        Map<String, TreeSet<TVTimePeriod>> tvPrograms = analyzeAndSplitTVPrograms(orderedPeriods);
         
-        // Stop process, no conflict is expected
-        if (tvPrograms.containsKey(CONFLICTED_PERIODS)) {
-            // DO SOMETHING
-            // DONT DO THE OPTMIZATION
-            return new ArrayList<TVTimePeriod>();
+        List<TVTimePeriod> result = new ArrayList<TVTimePeriod>();
+        for (String shortName : tvPrograms.keySet()) {
+            if (shortName.equals(CONFLICTED_PERIODS)) {
+                result.addAll(tvPrograms.get(shortName));
+            } else {
+                result.addAll(optmizationProcess(tvPrograms.get(shortName)));
+            }
         }
         
-        
-        // Starts recursion
-        return new ArrayList<TVTimePeriod>(optmizationProcess(orderedPeriods));
+        return result;
         
     }
 
@@ -90,9 +92,9 @@ public class TVSchedule {
         for (TVTimePeriod period : orderedPeriods) {
             TVTimePeriod group = groupStartDuration.get(period.getGroupingKey());
             if (group == null) {
-                group = period;
+                groupStartDuration.put(period.getGroupingKey(), period);
             } else {
-                group.group(period);
+                groupStartDuration.put(period.getGroupingKey(), group.group(period));
             }
 
             if (period.isContiguous(previousPeriod)) {
@@ -111,7 +113,7 @@ public class TVSchedule {
         
         
         // Checks the biggest groups formed
-        TVTimePeriod biggestWeekdays = getBiggestGroup(groupStartDuration.values());
+        TVTimePeriod biggestWeekdays = getBiggestGroup(new ArrayList<TVTimePeriod>(groupStartDuration.values()));
         TVTimePeriod biggestContiguous = getBiggestGroup(groupContiguous);
         
         TVTimePeriod biggest = getBiggestGroup(Arrays.asList(biggestWeekdays, biggestContiguous));
@@ -143,10 +145,13 @@ public class TVSchedule {
 
 
 
-    private static TVTimePeriod getBiggestGroup(Collection<TVTimePeriod> values) {
+    /**
+     * Obtains the biggest group, even try to group the periods between themselves for grouping days and times
+     */
+    private static TVTimePeriod getBiggestGroup(List<TVTimePeriod> periods) {
         TVTimePeriod biggest = null;
         
-        for (TVTimePeriod period : values) {
+        for (TVTimePeriod period : periods) {
             if (period != null && (biggest == null || biggest.size() < period.size())) {
                 biggest = period;
             }
@@ -154,5 +159,4 @@ public class TVSchedule {
 
         return biggest;
     }
-
 }

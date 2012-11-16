@@ -100,7 +100,7 @@ public class TVTimePeriod implements Comparable<TVTimePeriod>, Cloneable {
     }
     
     
-    private boolean isGroup() {
+    public boolean isGroup() {
         return group.size() > 0;
     }
 
@@ -187,10 +187,13 @@ public class TVTimePeriod implements Comparable<TVTimePeriod>, Cloneable {
      */
     @Override
     public int compareTo(TVTimePeriod obj) {
-        if (start + duration < obj.start + obj.duration)
+        if (start < obj.start)
             return -1;
-        if (start + duration > obj.start + obj.duration)
+        if (start > obj.start)
             return 1;
+        if (!shortName.equals(obj.shortName)) {
+            return 1;
+        }
         return 0;
     }
 
@@ -363,6 +366,17 @@ public class TVTimePeriod implements Comparable<TVTimePeriod>, Cloneable {
 
     public int size() {
         return group.size();
+    }
+
+
+
+    public static List<String> format(List<TVTimePeriod> groups) {
+        List<String> result = new ArrayList<String>();
+        for (TVTimePeriod period : groups) {
+            result.add(period.getStringRepresentation());
+        }
+        
+        return result;
     }
 
 }

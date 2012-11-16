@@ -4,11 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.tunein.tvschedule.TVGroupTimePeriod;
 import com.tunein.tvschedule.TVSchedule;
 import com.tunein.tvschedule.TVTimePeriod;
 import com.tunein.tvschedule.parser.TVPeriodParser;
@@ -26,13 +24,16 @@ public class PeriodGrouperTest {
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Friday", "6pm", "1hr"})));
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Saturday", "6pm", "1hr"})));
         
-        String expected = "Car Racing, S/M/T/W/T/F/S, 6pm, 1hr";
+        String[] expected = new String [] {
+                "Car Racing, Sunday/Monday/Tuesday/Wednesday/Thursday/Friday/Saturday, 6pm, 1hr"
+        };
+
         
+        // Method in test
+        List<TVTimePeriod> groups = TVSchedule.optmize(periods);
+        List<String> result = TVTimePeriod.format(groups);
         
-        List<TVTimePeriod> group = TVSchedule.optmize(periods);
-        
-        
-        Assert.assertEquals("expected grouping all day in one occurrence.", expected, group.get(0).getStringRepresentation());
+        Assert.assertArrayEquals("expected grouping all day in one occurrence.", expected, result.toArray());
     }
 
     @Test
@@ -51,15 +52,19 @@ public class PeriodGrouperTest {
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Friday", "6pm", "1hr"})));
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Saturday", "6pm", "1hr"})));
         
-        String expected = "Car Racing, S/M/T/W/T/F/S, 6pm, 1hr\n" +
-                          "Car Racing, S, 7pm, 3h\n" +
-                          "Car Racing, W, 8pm, 2h";
+        String[] expected = new String [] {
+                "Car Racing, Sunday/Monday/Tuesday/Wednesday/Thursday/Friday/Saturday, 6pm, 1hr",
+                "Car Racing, Sunday, 7pm, 3hr",
+                "Car Racing, Wednesday, 8pm, 2hr"
+        };
         
         
-        List<TVTimePeriod> group = TVSchedule.optmize(periods);
+        // Method in test
+        List<TVTimePeriod> groups = TVSchedule.optmize(periods);
+        List<String> result = TVTimePeriod.format(groups);
         
         
-        Assert.assertEquals("expected grouping all day in one occurrence.", expected, group.get(0).getStringRepresentation());
+        Assert.assertArrayEquals("expected grouping all day in one occurrence.", expected, result.toArray());
     }
 
     
@@ -74,13 +79,17 @@ public class PeriodGrouperTest {
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "5pm", "1hr"})));
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "6pm", "1hr"})));
         
-        String expected = "Car Racing, M, 12am, 7hr";
+        String[] expected = new String [] {
+                "Car Racing, Monday, 12am, 7hr"
+        };
+        
+
+        // Method in test
+        List<TVTimePeriod> groups = TVSchedule.optmize(periods);
+        List<String> result = TVTimePeriod.format(groups);
         
         
-        List<TVTimePeriod> group = TVSchedule.optmize(periods);
-        
-        
-        Assert.assertEquals("expected grouping all day in one occurrence.", expected, group.get(0).getStringRepresentation());
+        Assert.assertArrayEquals("expected grouping all day in one occurrence.", expected, result.toArray());
     }
     
     @Test
@@ -93,13 +102,15 @@ public class PeriodGrouperTest {
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "5pm", "1hr"})));
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "6pm", "1hr"})));
         
-        String expected = "Car Racing, M, 12am, 7hr";
+        String[] expected = new String [] {
+                "Car Racing, Monday, 12am, 7hr"
+        };
+        
+        List<TVTimePeriod> groups = TVSchedule.optmize(periods);
+        List<String> result = TVTimePeriod.format(groups);
         
         
-        List<TVTimePeriod> group = TVSchedule.optmize(periods);
-        
-        
-        Assert.assertEquals("expected grouping all day in one occurrence.", expected, group.get(0).getStringRepresentation());
+        Assert.assertArrayEquals("expected grouping all day in one occurrence.", expected, result.toArray());
     }
 
     @Test
@@ -121,21 +132,18 @@ public class PeriodGrouperTest {
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "6pm", "1hr"})));
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "7pm", "1hr"})));
         
-        String expected = "Car Racing, M, 12am, 7hr\n" +
-                          "Car Racing, S/T/W/T/F/S, 6pm, 1hr";
+        String[] expected = new String [] {
+                "Car Racing, Sunday/Tuesday/Wednesday/Thursday/Friday/Saturday, 6pm, 1hr",
+                "Car Racing, Monday, 12am, 8hr"
+        };
+
         
-        String result = "";
-        
-        List<TVTimePeriod> group = TVSchedule.optmize(periods);
-        for (TVTimePeriod grouppedPeriod : group) {
-            if (StringUtils.isNotBlank(result)) {
-                result += "\n";
-            }
-            result += grouppedPeriod.getStringRepresentation();
-        }
+        List<TVTimePeriod> groups = TVSchedule.optmize(periods);
+        List<String> result = TVTimePeriod.format(groups);
         
         
-        Assert.assertEquals("expected grouping all day in one occurrence.", expected, result);
+        Assert.assertArrayEquals("expected grouping all day in one occurrence.", expected, result.toArray());
+
     }
     
     @Test
@@ -155,21 +163,18 @@ public class PeriodGrouperTest {
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "4pm", "1hr"})));
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "5pm", "1hr"})));
         
-        String expected = "Car Racing, M, 1pm, 5hr\n" +
-                          "Car Racing, S/M/T/W/T/F/S, 6pm, 1hr";
+
+        String[] expected = new String [] {
+                "Car Racing, Sunday/Monday/Tuesday/Wednesday/Thursday/Friday/Saturday, 6pm, 1hr",
+                "Car Racing, Monday, 1pm, 5hr"
+        };
+
         
-        String result = "";
-        
-        List<TVTimePeriod> group = TVSchedule.optmize(periods);
-        for (TVTimePeriod grouppedPeriod : group) {
-            if (StringUtils.isNotBlank(result)) {
-                result += "\n";
-            }
-            result += grouppedPeriod.getStringRepresentation();
-        }
+        List<TVTimePeriod> groups = TVSchedule.optmize(periods);
+        List<String> result = TVTimePeriod.format(groups);
         
         
-        Assert.assertEquals("expected grouping all day in one occurrence.", expected, result);
+        Assert.assertArrayEquals("expected grouping all day in one occurrence.", expected, result.toArray());
     }
     
     
@@ -186,6 +191,7 @@ public class PeriodGrouperTest {
 
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "1pm", "1hr"})));
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "2pm", "1hr"})));
+
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "4pm", "1hr"})));
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "5pm", "1hr"})));
         
@@ -196,24 +202,180 @@ public class PeriodGrouperTest {
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Thursday", "6pm", "1hr"})));
         periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Thursday", "7pm", "1hr"})));
 
-        String expected = "Car Racing, S/M/T/W/T/F/S, 3pm, 1hr\n" +
-                          "Car Racing, M, 1pm, 2hr\n" +
-                          "Car Racing, M, 4pm, 2hr\n" +
-                          "Car Racing, T, 4pm, 4hr";
+        String[] expected = new String [] {
+                "Car Racing, Sunday/Monday/Tuesday/Wednesday/Thursday/Friday/Saturday, 3pm, 1hr",
+                "Car Racing, Monday, 1pm, 2hr",
+                "Car Racing, Monday/Tuesday, 4pm, 1hr",
+                "Car Racing, Monday, 5pm, 1hr",
+                "Car Racing, Thursday, 4pm, 4hr",
+        };
+
         
-        String result = "";
-        
-        List<TVTimePeriod> group = TVSchedule.optmize(periods);
-        for (TVTimePeriod grouppedPeriod : group) {
-            if (StringUtils.isNotBlank(result)) {
-                result += "\n";
-            }
-            result += grouppedPeriod.getStringRepresentation();
-        }
+        List<TVTimePeriod> groups = TVSchedule.optmize(periods);
+        List<String> result = TVTimePeriod.format(groups);
         
         
-        Assert.assertEquals("expected grouping all day in one occurrence.", expected, result);
+        Assert.assertArrayEquals("expected grouping all day in one occurrence.", expected, result.toArray());
+
+    }
+
+    
+    @Test
+    public void testT5_grouperContinuousDifferentDays() {
+        List<TVTimePeriod> periods = new ArrayList<TVTimePeriod>();
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "12am", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "1pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "2pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "3pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "4pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "5pm", "1hr"})));
+        
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Friday", "12am", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Friday", "1pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Friday", "2pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Friday", "3pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Friday", "4pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Friday", "5pm", "1hr"})));
+
+        String[] expected = new String [] {
+                "Car Racing, Monday, 12am, 6hr",
+                "Car Racing, Friday, 12am, 6hr"
+        };
+        
+
+        // Method in test
+        List<TVTimePeriod> groups = TVSchedule.optmize(periods);
+        List<String> result = TVTimePeriod.format(groups);
+        
+        
+        Assert.assertArrayEquals("expected grouping all day in one occurrence.", expected, result.toArray());
+    }
+
+    @Test
+    public void testT5_GroupOfGroupTest() {
+        List<TVTimePeriod> periods = new ArrayList<TVTimePeriod>();
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Sunday", "3pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "3pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Tuesday", "3pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Wednesday", "3pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Thursday", "3pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Friday", "3pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Saturday", "3pm", "1hr"})));
+
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "1pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "2pm", "1hr"})));
+
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "4pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "5pm", "1hr"})));
+        
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Tuesday", "4pm", "1hr"})));
+
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Thursday", "4pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Thursday", "5pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Thursday", "6pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Thursday", "7pm", "1hr"})));
+
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Friday", "4pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Friday", "5pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Friday", "6pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Friday", "7pm", "1hr"})));
+
+        String[] expected = new String [] {
+                "Car Racing, Sunday/Monday/Tuesday/Wednesday/Thursday/Friday/Saturday, 3pm, 1hr",
+                "Car Racing, Monday, 1pm, 2hr",
+                "Car Racing, Monday/Tuesday/Thursday/Friday, 4pm, 1hr",
+                "Car Racing, Monday/Thursday/Friday, 5pm, 1hr",
+                "Car Racing, Thursday/Friday, 6pm, 1hr",
+                "Car Racing, Thursday/Friday, 7pm, 1hr",
+        };
+
+        
+        List<TVTimePeriod> groups = TVSchedule.optmize(periods);
+        List<String> result = TVTimePeriod.format(groups);
+        
+        
+        Assert.assertArrayEquals("expected grouping all day in one occurrence.", expected, result.toArray());
+
     }
     
+    @Test
+    public void testT6_Conflict() {
+        List<TVTimePeriod> periods = new ArrayList<TVTimePeriod>();
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Sunday", "6pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "6pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Tuesday", "6pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Wednesday", "6pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Thursday", "6pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Friday", "6pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Saturday", "6pm", "1hr"})));
+        
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"NFL Game", "Saturday", "6pm", "1hr"})));
+        
+        String[] expected = new String [] {
+                "Conflict with Period[Car Racing, Saturday, 6pm, 1hr] and Period[NFL Game, Saturday, 6pm, 1hr]",
+                "Car Racing, Sunday/Monday/Tuesday/Wednesday/Thursday/Friday/Saturday, 6pm, 1hr",
+                "NFL Game, Saturday, 6pm, 1hr",
+               
+        };
 
+        
+        // Method in test
+        List<TVTimePeriod> groups = TVSchedule.optmize(periods);
+        List<String> result = TVTimePeriod.format(groups);
+        
+        Assert.assertArrayEquals("expected grouping all day in one occurrence.", expected, result.toArray());
+    }
+    
+    @Test
+    public void testT6_NoConflict() {
+        List<TVTimePeriod> periods = new ArrayList<TVTimePeriod>();
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Sunday", "6pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "6pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Tuesday", "6pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Wednesday", "6pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Thursday", "6pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Friday", "6pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Saturday", "6pm", "1hr"})));
+        
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"NFL Game", "Saturday", "10pm", "1hr"})));
+        
+        String[] expected = new String [] {
+                "Car Racing, Sunday/Monday/Tuesday/Wednesday/Thursday/Friday/Saturday, 6pm, 1hr",
+                "NFL Game, Saturday, 10pm, 1hr",
+        };
+
+        
+        // Method in test
+        List<TVTimePeriod> groups = TVSchedule.optmize(periods);
+        List<String> result = TVTimePeriod.format(groups);
+        
+        Assert.assertArrayEquals("expected grouping all day in one occurrence.", expected, result.toArray());
+    }
+
+    @Test
+    public void testT7_DualProgram() {
+        List<TVTimePeriod> periods = new ArrayList<TVTimePeriod>();
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Sunday", "6pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Monday", "6pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Tuesday", "6pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Wednesday", "6pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Thursday", "6pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Friday", "6pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Saturday", "6pm", "1hr"})));
+        
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"NFL Game", "Saturday", "1pm", "1hr"})));
+        periods.add(TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"NFL Game", "Saturday", "2pm", "3hr"})));
+        
+        String[] expected = new String [] {
+                "Car Racing, Sunday/Monday/Tuesday/Wednesday/Thursday/Friday/Saturday, 6pm, 1hr",
+                "NFL Game, Saturday, 1pm, 4hr",
+        };
+
+        
+        // Method in test
+        List<TVTimePeriod> groups = TVSchedule.optmize(periods);
+        List<String> result = TVTimePeriod.format(groups);
+        
+        Assert.assertArrayEquals("expected grouping all day in one occurrence.", expected, result.toArray());
+    }
 }

@@ -64,7 +64,7 @@ public class TVTimePeriodTest {
     @Test
     public void testT2a_HasConflict() {
         TVTimePeriod p1 = TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Sunday", "6pm", "1hr"}));
-        TVTimePeriod p2 = TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Sunday", "6pm", "1hr"}));
+        TVTimePeriod p2 = TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"NFL Game", "Sunday", "6pm", "1hr"}));
         
         assertTrue("p1 should be in conflict with p2", p1.hasConflict(p2) && p2.hasConflict(p1));
     }
@@ -225,5 +225,29 @@ public class TVTimePeriodTest {
         TVTimePeriod grouped = group1.group(group2);
         
         assertEquals("p1 should be grouped correctly with p2 and then p3 with p4 into only ", expected, grouped.getStringRepresentation());
+    }
+    
+    
+
+    @Test
+    public void testT5a_compareTo0() {
+        TVTimePeriod p1 = TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Wednesday", "1pm", "1hr"}));
+        TVTimePeriod p2 = TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Wednesday", "1pm", "1hr"}));
+        
+        assertEquals("compareTo() should be 0", 0, p1.compareTo(p2));
+    }
+    @Test
+    public void testT5a_compareTo1() {
+        TVTimePeriod p1 = TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Wednesday", "2pm", "1hr"}));
+        TVTimePeriod p2 = TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Wednesday", "1pm", "1hr"}));
+        
+        assertEquals("compareTo() should be 1", 1, p1.compareTo(p2));
+    }
+    @Test
+    public void testT5a_compareToMinus1() {
+        TVTimePeriod p1 = TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Wednesday", "1pm", "1hr"}));
+        TVTimePeriod p2 = TVPeriodParser.parsePeriod(Arrays.asList(new String[] {"Car Racing", "Wednesday", "2pm", "1hr"}));
+        
+        assertEquals("compareTo() should be -1", -1, p1.compareTo(p2));
     }
 }
